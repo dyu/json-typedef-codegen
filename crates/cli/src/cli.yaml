@@ -62,6 +62,20 @@ args:
       takes_value: true
       value_name: package
 
+  # Nim
+  - nim-out:
+      help: Output directory for Nim code generation
+      long: nim-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - nim-filename
+  - nim-filename:
+      help: File name for Nim generated types
+      long: nim-filename
+      takes_value: true
+      value_name: package
+
   # Python
   - python-out:
       help: Output directory for Python code generation

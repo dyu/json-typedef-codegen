@@ -90,6 +90,20 @@ fn main() -> Result<()> {
 
         log.finish("Java + Jackson", &codegen_info);
     }
+    
+    if let Some(out_dir) = matches.value_of("nim-out") {
+        log.start("Nim", out_dir);
+
+        let filename = matches.value_of("nim-filename").unwrap().to_owned();
+
+        let target = jtd_codegen_target_nim::Target::new(filename);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Nim code")?;
+
+        log.finish("Nim", &codegen_info);
+    }
 
     if let Some(out_dir) = matches.value_of("python-out") {
         log.start("Python", out_dir);
