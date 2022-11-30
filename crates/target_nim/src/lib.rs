@@ -56,11 +56,12 @@ impl<I: inflect::Inflector> inflect::Inflector for KeywordAvoidingInflector<I> {
 
 pub struct Target {
     filename: String,
+    use_option: bool,
 }
 
 impl Target {
-    pub fn new(filename: String) -> Self {
-        Self { filename }
+    pub fn new(filename: String, use_option: bool) -> Self {
+        Self { filename, use_option }
     }
 }
 
@@ -146,6 +147,9 @@ impl jtd_codegen::target::Target for Target {
                 format!("Table[string, {}]", sub_expr)
             }
             target::Expr::NullableOf(sub_expr) => {
+                if !self.use_option {
+                    return sub_expr
+                }
                 state
                     .imports
                     .entry("options".into())
@@ -326,17 +330,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into()),
+            &crate::Target::new("jtd_codegen_e2e".into(), false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into()),
+            &crate::Target::new("jtd_codegen_e2e".into(), false),
             empty_and_nonascii_enum_values
         );
     }

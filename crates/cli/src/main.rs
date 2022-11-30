@@ -10,6 +10,19 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
+/*
+fn bool_value(value: &str) -> bool {
+    return match value {
+        "1" => true,
+        "on" => true,
+        "true" => true,
+        "y" => true,
+        "yes" => true,
+        _ => false,
+    }
+}
+*/
+
 fn main() -> Result<()> {
     let cli_yaml = load_yaml!("cli.yaml");
     let matches = App::from(cli_yaml).version(crate_version!()).get_matches();
@@ -95,8 +108,10 @@ fn main() -> Result<()> {
         log.start("Nim", out_dir);
 
         let filename = matches.value_of("nim-filename").unwrap().to_owned();
+        
+        let use_option = matches.is_present("nim-use-option");
 
-        let target = jtd_codegen_target_nim::Target::new(filename);
+        let target = jtd_codegen_target_nim::Target::new(filename, use_option);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
