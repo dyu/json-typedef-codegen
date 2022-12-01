@@ -56,12 +56,12 @@ impl<I: inflect::Inflector> inflect::Inflector for KeywordAvoidingInflector<I> {
 
 pub struct Target {
     filename: String,
-    use_option: bool,
+    with_optionals: bool,
 }
 
 impl Target {
-    pub fn new(filename: String, use_option: bool) -> Self {
-        Self { filename, use_option }
+    pub fn new(filename: String, with_optionals: bool) -> Self {
+        Self { filename, with_optionals }
     }
 }
 
@@ -147,7 +147,7 @@ impl jtd_codegen::target::Target for Target {
                 format!("Table[string, {}]", sub_expr)
             }
             target::Expr::NullableOf(sub_expr) => {
-                if !self.use_option {
+                if !self.with_optionals {
                     return sub_expr
                 }
                 state

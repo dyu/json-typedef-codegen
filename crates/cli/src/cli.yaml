@@ -75,9 +75,9 @@ args:
       long: nim-filename
       takes_value: true
       value_name: package
-  - nim-use-option:
-      help: Whether to wrap optionals with Option[T]
-      long: nim-use-option
+  - nim-with-optionals:
+      help: Whether to use optionals via Option[T]
+      long: nim-with-optionals
       takes_value: false
 
   # Python

@@ -109,9 +109,9 @@ fn main() -> Result<()> {
 
         let filename = matches.value_of("nim-filename").unwrap().to_owned();
         
-        let use_option = matches.is_present("nim-use-option");
+        let with_optionals = matches.is_present("nim-with-optionals");
 
-        let target = jtd_codegen_target_nim::Target::new(filename, use_option);
+        let target = jtd_codegen_target_nim::Target::new(filename, with_optionals);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
