@@ -183,6 +183,22 @@ fn main() -> Result<()> {
 
         log.finish("TypeScript", &codegen_info);
     }
+    
+    if let Some(out_dir) = matches.value_of("zig-out") {
+        log.start("zig", out_dir);
+
+        let filename = matches.value_of("zig-filename").unwrap().to_owned();
+        
+        let with_optionals = matches.is_present("zig-with-optionals");
+
+        let target = jtd_codegen_target_zig::Target::new(filename, with_optionals);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate zig code")?;
+
+        log.finish("zig", &codegen_info);
+    }
 
     log.flush();
     Ok(())

@@ -128,3 +128,21 @@ args:
       long: typescript-out
       takes_value: true
       value_name: dir
+
+  # Zig
+  - zig-out:
+      help: Output directory for Zig code generation
+      long: zig-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - zig-filename
+  - zig-filename:
+      help: File name for zig generated types
+      long: zig-filename
+      takes_value: true
+      value_name: package
+  - zig-with-optionals:
+      help: Whether to use zig optionals
+      long: zig-with-optionals
+      takes_value: false

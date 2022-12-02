@@ -242,6 +242,7 @@ dependencies = [
  "jtd_codegen_target_ruby_sig",
  "jtd_codegen_target_rust",
  "jtd_codegen_target_typescript",
+ "jtd_codegen_target_zig",
  "serde",
  "serde_json",
 ]
@@ -335,6 +336,16 @@ dependencies = [
  "jtd_codegen_test",
  "lazy_static",
  "regex",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_zig"
+version = "0.2.1"
+dependencies = [
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
  "serde_json",
 ]
 
