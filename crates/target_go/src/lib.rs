@@ -225,16 +225,16 @@ impl jtd_codegen::target::Target for Target {
                     write!(out, "{}", description(&field.metadata, 1))?;
 
                     if field.optional {
-                        writeln!(
-                            out,
-                            "\t{} {} `json:\"{},omitempty\"`",
-                            field.name, field.type_, field.json_name
+                        writeln!(out, "\t{} {} `json:\"{},omitempty\"`",
+                            field.name,
+                            field.type_,
+                            if self.numeric_field_names { (index + 1).to_string() } else { field.json_name },
                         )?;
                     } else {
-                        writeln!(
-                            out,
-                            "\t{} {} `json:\"{}\"`",
-                            field.name, field.type_, field.json_name
+                        writeln!(out, "\t{} {} `json:\"{}\"`",
+                            field.name,
+                            field.type_,
+                            if self.numeric_field_names { (index + 1).to_string() } else { field.json_name },
                         )?;
                     }
                 }
