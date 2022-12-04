@@ -370,6 +370,8 @@ impl jtd_codegen::target::Target for Target {
                 if let Some(s) = metadata.get("pythonType").and_then(|v| v.as_str()) {
                     return Ok(Some(s.into()));
                 }
+                
+                let mut count: u16;
 
                 state
                     .imports
@@ -396,31 +398,35 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json_data(cls, data: Any) -> '{}':", name)?;
                 writeln!(out, "        return cls(")?;
+                count = 0;
                 for field in &fields {
-                    writeln!(
-                        out,
-                        "            _from_json_data({}, data.get({:?})),",
-                        field.type_, field.json_name
-                    )?;
+                    count += 1;
+                    write!(out, "            _from_json_data({}, data.get(", field.type_)?;
+                    if self.numeric_field_names {
+                        writeln!(out, "\"{}\")),", count)?;
+                    } else {
+                        writeln!(out, "{:?})),", field.json_name)?;
+                    }
                 }
                 writeln!(out, "        )")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json_data(self) -> Any:")?;
                 writeln!(out, "        data: Dict[str, Any] = {{}}")?;
+                count = 0;
                 for field in &fields {
+                    count += 1;
                     if field.optional {
                         writeln!(out, "        if self.{} is not None:", field.name)?;
-                        writeln!(
-                            out,
-                            "             data[{:?}] = _to_json_data(self.{})",
-                            field.json_name, field.name
-                        )?;
+                        write!(out, "            ")?;
                     } else {
-                        writeln!(
-                            out,
-                            "        data[{:?}] = _to_json_data(self.{})",
-                            field.json_name, field.name
-                        )?;
+                        write!(out, "        ")?;
+                    }
+                    if self.numeric_field_names {
+                        writeln!(out, "data[\"{}\"] = _to_json_data(self.{})",
+                            count, field.name)?;
+                    } else {
+                        writeln!(out, "data[{:?}] = _to_json_data(self.{})",
+                            field.json_name, field.name)?;
                     }
                 }
                 writeln!(out, "        return data")?;
