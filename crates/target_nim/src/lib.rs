@@ -195,7 +195,7 @@ impl jtd_codegen::target::Target for Target {
                     )?;
                 }
 
-                writeln!(out)?;
+                writeln!(out, "\ntype")?;
 
                 None
             }
@@ -212,8 +212,7 @@ impl jtd_codegen::target::Target for Target {
                 type_,
             } => {
                 _ = metadata;
-                writeln!(out)?;
-                writeln!(out, "type {}* = {}", name, type_)?;
+                writeln!(out, "  {}* = {}", name, type_)?;
 
                 None
             }
@@ -224,8 +223,7 @@ impl jtd_codegen::target::Target for Target {
                 members,
             } => {
                 _ = metadata;
-                writeln!(out)?;
-                writeln!(out, "type {}* {{.pure.}} = enum", name)?;
+                writeln!(out, "  {}* {{.pure.}} = enum", name)?;
                 for member in &members {
                     writeln!(out, "    {} = {:?}", member.name, member.json_value)?;
                 }
@@ -240,8 +238,7 @@ impl jtd_codegen::target::Target for Target {
                 fields,
             } => {
                 _ = metadata;
-                writeln!(out)?;
-                writeln!(out, "type {}* = object", name)?;
+                writeln!(out, "  {}* = object", name)?;
                 //write!(out, "{}", description(&metadata, 1))?;
                 for field in &fields {
                     writeln!(out, "    {}*: {}", field.name, field.type_,)?;
