@@ -195,6 +195,8 @@ impl jtd_codegen::target::Target for Target {
                 members,
             } => {
                 _ = metadata;
+                
+                state.imports.insert("std".into());
                 writeln!(out)?;
                 writeln!(out, "pub const {name} = enum {{")?;
                 for member in &members {
@@ -212,14 +214,14 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "        .{{ NAMES[{}], .{} }},", i, member.name)?;
                     i += 1;
                 }
-                writeln!(out, "    }};\n")?;
+                writeln!(out, "    }});\n")?;
                 writeln!(out, "    pub fn name(self: {name}) [:0]const u8 {{")?;
                 writeln!(out, "        return NAMES[@enumToInt(self)];")?;
                 writeln!(out, "    }}")?;
                 writeln!(out, "    pub fn fromNumber(i: u8) ?{name} {{")?;
                 writeln!(out, "        return if (i < NAMES.len) @intToEnum({name}, i) else null;")?;
                 writeln!(out, "    }}")?;
-                writeln!(out, "    pub fn fromName(s: []const u8]) ?{name} {{")?;
+                writeln!(out, "    pub fn fromName(s: []const u8) ?{name} {{")?;
                 writeln!(out, "        return NAME_MAP.get(s);")?;
                 writeln!(out, "    }}")?;
                 writeln!(out, "}};")?;
