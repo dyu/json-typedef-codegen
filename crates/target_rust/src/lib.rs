@@ -256,7 +256,11 @@ impl jtd_codegen::target::Target for Target {
                         }
 
                         write!(out, "{}", description(&field.metadata, 1))?;
-                        writeln!(out, "    #[serde(rename = {:?})]", field.json_name)?;
+                        if self.numeric_field_names {
+                            writeln!(out, "    #[serde(rename = \"{}\")]", index + 1)?;
+                        } else {
+                            writeln!(out, "    #[serde(rename = {:?})]", field.json_name)?;    
+                        }
                         if field.optional {
                             writeln!(
                                 out,
