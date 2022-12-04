@@ -276,6 +276,8 @@ impl jtd_codegen::target::Target for Target {
                 if let Some(s) = metadata.get("rubyType").and_then(|v| v.as_str()) {
                     return Ok(Some(s.into()));
                 }
+                
+                let mut count: u16;
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 1))?;
@@ -292,30 +294,45 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out)?;
                 writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      out = {}.new", name)?;
+                count = 0;
                 for field in &fields {
-                    writeln!(
+                    count += 1;
+                    write!(
                         out,
-                        "      out.{} = {}::from_json_data({}, data[{:?}])",
-                        field.name, self.module, field.type_, field.json_name
+                        "      out.{} = {}::from_json_data({}, ",
+                        field.name, self.module, field.type_,
                     )?;
+                    if self.numeric_field_names {
+                        writeln!(out, "data[\"{}\"])", count)?;
+                    } else {
+                        writeln!(out, "data[{:?}])", field.json_name)?;
+                    }
                 }
                 writeln!(out, "      out")?;
                 writeln!(out, "    end")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json_data")?;
                 writeln!(out, "      data = {{}}")?;
+                count = 0;
                 for field in &fields {
+                    count += 1;
+                    if self.numeric_field_names {
+                        write!(out, "      data[\"{}\"] = ", count)?;
+                    } else {
+                        write!(out, "      data[{:?}] = ", field.json_name)?;
+                    }
+                    
                     if field.optional {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json_data({}) unless {}.nil?",
-                            field.json_name, self.module, field.name, field.name
+                            "{}::to_json_data({}) unless {}.nil?",
+                            self.module, field.name, field.name
                         )?;
                     } else {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json_data({})",
-                            field.json_name, self.module, field.name
+                            "{}::to_json_data({})",
+                            self.module, field.name
                         )?;
                     }
                 }
