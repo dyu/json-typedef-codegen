@@ -314,7 +314,11 @@ impl jtd_codegen::target::Target for Target {
                     }
 
                     write!(out, "{}", description(&field.metadata, 2))?;
-                    writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                    if self.numeric_field_names {
+                        writeln!(out, "        [JsonPropertyName(\"{}\")]", index + 1)?;
+                    } else {
+                        writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                    }
                     if field.optional {
                         writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
                     }
