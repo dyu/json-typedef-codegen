@@ -29,11 +29,12 @@ lazy_static! {
 
 pub struct Target {
     namespace: String,
+    numeric_field_names: bool,
 }
 
 impl Target {
-    pub fn new(namespace: String) -> Self {
-        Self { namespace }
+    pub fn new(namespace: String, numeric_field_names: bool) -> Self {
+        Self { namespace, numeric_field_names }
     }
 }
 
@@ -476,17 +477,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("JtdCodegenE2E".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("JtdCodegenE2E".into(), false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JtdCodegenE2E".into()),
+            &crate::Target::new("JtdCodegenE2E".into(), false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JtdCodegenE2E".into()),
+            &crate::Target::new("JtdCodegenE2E".into(), false),
             empty_and_nonascii_enum_values
         );
     }

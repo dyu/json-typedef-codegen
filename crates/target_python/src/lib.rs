@@ -33,11 +33,13 @@ lazy_static! {
         ));
 }
 
-pub struct Target {}
+pub struct Target {
+    numeric_field_names: bool,
+}
 
 impl Target {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(numeric_field_names: bool) -> Self {
+        Self { numeric_field_names }
     }
 }
 
@@ -589,17 +591,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new());
+        jtd_codegen_test::std_test_cases!(&crate::Target::new(false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(),
+            &crate::Target::new(false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(),
+            &crate::Target::new(false),
             empty_and_nonascii_enum_values
         );
     }

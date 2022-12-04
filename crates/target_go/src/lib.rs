@@ -38,11 +38,12 @@ lazy_static! {
 
 pub struct Target {
     package: String,
+    numeric_field_names: bool,
 }
 
 impl Target {
-    pub fn new(package: String) -> Self {
-        Self { package }
+    pub fn new(package: String, numeric_field_names: bool) -> Self {
+        Self { package, numeric_field_names }
     }
 }
 
@@ -392,12 +393,12 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into()),
+            &crate::Target::new("jtd_codegen_e2e".into(), false),
             empty_and_nonascii_enum_values
         );
     }

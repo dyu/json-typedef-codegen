@@ -57,6 +57,9 @@ fn main() -> Result<()> {
         .map_err(|err| format_err!("{:?}", err))
         .with_context(|| "Failed to validate input schema")?;
 
+    // {"1": "Hello, world!"} instead of {"msg": "Hello, world!"}
+    let numeric_field_names = matches.is_present("numeric-field-names");
+    
     // Generate code for all enabled targets.
 
     if let Some(out_dir) = matches.value_of("csharp-system-text-out") {
@@ -67,7 +70,8 @@ fn main() -> Result<()> {
             .unwrap()
             .to_owned();
 
-        let target = jtd_codegen_target_csharp_system_text::Target::new(namespace);
+        let target = jtd_codegen_target_csharp_system_text::Target::new(namespace,
+            numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -81,7 +85,7 @@ fn main() -> Result<()> {
 
         let package = matches.value_of("go-package").unwrap().to_owned();
 
-        let target = jtd_codegen_target_go::Target::new(package);
+        let target = jtd_codegen_target_go::Target::new(package, numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -95,7 +99,8 @@ fn main() -> Result<()> {
 
         let package = matches.value_of("java-jackson-package").unwrap().to_owned();
 
-        let target = jtd_codegen_target_java_jackson::Target::new(package);
+        let target = jtd_codegen_target_java_jackson::Target::new(package,
+            numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -123,7 +128,7 @@ fn main() -> Result<()> {
     if let Some(out_dir) = matches.value_of("python-out") {
         log.start("Python", out_dir);
 
-        let target = jtd_codegen_target_python::Target::new();
+        let target = jtd_codegen_target_python::Target::new(numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -137,7 +142,7 @@ fn main() -> Result<()> {
 
         let module = matches.value_of("ruby-module").unwrap().to_owned();
 
-        let target = jtd_codegen_target_ruby::Target::new(module);
+        let target = jtd_codegen_target_ruby::Target::new(module, numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -163,7 +168,7 @@ fn main() -> Result<()> {
     if let Some(out_dir) = matches.value_of("rust-out") {
         log.start("Rust", out_dir);
 
-        let target = jtd_codegen_target_rust::Target::new();
+        let target = jtd_codegen_target_rust::Target::new(numeric_field_names);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))

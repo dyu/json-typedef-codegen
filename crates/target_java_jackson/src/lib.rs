@@ -32,11 +32,12 @@ lazy_static! {
 
 pub struct Target {
     package: String,
+    numeric_field_names: bool,
 }
 
 impl Target {
-    pub fn new(package: String) -> Self {
-        Self { package }
+    pub fn new(package: String, numeric_field_names: bool) -> Self {
+        Self { package, numeric_field_names }
     }
 }
 
@@ -570,6 +571,6 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("com.example".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("com.example".into(), false));
     }
 }

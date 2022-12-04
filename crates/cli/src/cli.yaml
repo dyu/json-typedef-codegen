@@ -20,6 +20,14 @@ args:
         - json
       default_value: pretty
 
+  #  numeric field names
+  - numeric-field-names:
+      help: |+
+        Whether to use the sequence number as the json field name
+        {"1": "hello"} instead of {"msg": "hello"}
+      long: numeric-field-names
+      takes_value: false
+
   # C# + System.Text.Json
   - csharp-system-text-out:
       help: Output directory for C# + System.Text.Json code generation
