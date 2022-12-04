@@ -304,12 +304,17 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "@JsonIgnoreProperties(ignoreUnknown = true)")?;
                 }
                 writeln!(out, "public class {} {{", name)?;
+                let mut count = 0;
                 for field in &fields {
+                    count += 1;
                     if field.optional {
                         writeln!(out, "    @JsonInclude(JsonInclude.Include.NON_NULL)")?;
                     }
-
-                    writeln!(out, "    @JsonProperty({:?})", field.json_name)?;
+                    if self.numeric_field_names {
+                        writeln!(out, "    @JsonProperty(\"{}\")", count)?;
+                    } else {
+                        writeln!(out, "    @JsonProperty({:?})", field.json_name)?;
+                    }
                     writeln!(out, "    private {} {};", field.type_, field.name)?;
                     writeln!(out)?;
                 }
