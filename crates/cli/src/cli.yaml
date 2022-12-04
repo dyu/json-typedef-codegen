@@ -76,7 +76,7 @@ args:
       takes_value: true
       value_name: package
   - nim-with-optionals:
-      help: Whether to use optionals via Option[T]
+      help: Whether to use nim optionals via Option[T]
       long: nim-with-optionals
       takes_value: false
 
