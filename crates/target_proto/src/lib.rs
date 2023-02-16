@@ -189,8 +189,20 @@ impl jtd_codegen::target::Target for Target {
             } => {
                 _ = metadata;
                 writeln!(out, "enum {} {{", name)?;
+                let mut count = 0;
+                let mut numeric = false;
                 for member in &members {
-                    writeln!(out, "  {} = {:?}", member.name, member.json_value)?;
+                    if count == 0 {
+                        // only test the first member
+                        numeric = member.json_value.chars().all(char::is_numeric);
+                    }
+                    count += 1;
+                    write!(out, "  {} = ", member.name)?;
+                    if numeric {
+                        writeln!(out, "{};", member.json_value)?;
+                    } else {
+                        writeln!(out, "{}; // {:?}", count, member.json_value)?;
+                    }
                 }
                 writeln!(out, "}}\n")?;
 
@@ -210,9 +222,11 @@ impl jtd_codegen::target::Target for Target {
                 for field in &fields {
                     count += 1;
                     if !field.type_.starts_with("repeated ") {
-                        write!(out, "optional ")?;
+                        write!(out, "  optional ")?;
+                    } else {
+                        write!(out, "  ")?;
                     }
-                    writeln!(out, "  {} {} = {}", field.type_, field.name, count)?;
+                    writeln!(out, "{} {} = {};", field.type_, field.name, count)?;
                 }
                 writeln!(out, "}}\n")?;
 
