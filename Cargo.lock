@@ -237,6 +237,7 @@ dependencies = [
  "jtd_codegen_target_go",
  "jtd_codegen_target_java_jackson",
  "jtd_codegen_target_nim",
+ "jtd_codegen_target_proto",
  "jtd_codegen_target_python",
  "jtd_codegen_target_ruby",
  "jtd_codegen_target_ruby_sig",
@@ -280,6 +281,16 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_nim"
+version = "0.2.1"
+dependencies = [
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_proto"
 version = "0.2.1"
 dependencies = [
  "jtd-codegen",

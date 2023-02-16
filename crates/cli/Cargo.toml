@@ -14,6 +14,7 @@ jtd_codegen_target_csharp_system_text = { path = "../target_csharp_system_text" 
 jtd_codegen_target_go = { path = "../target_go" }
 jtd_codegen_target_java_jackson = { path = "../target_java_jackson" }
 jtd_codegen_target_nim = { path = "../target_nim" }
+jtd_codegen_target_proto = { path = "../target_proto" }
 jtd_codegen_target_python = { path = "../target_python" }
 jtd_codegen_target_ruby = { path = "../target_ruby" }
 jtd_codegen_target_ruby_sig = { path = "../target_ruby_sig" }

@@ -113,7 +113,7 @@ fn main() -> Result<()> {
         log.start("Nim", out_dir);
 
         let filename = matches.value_of("nim-filename").unwrap().to_owned();
-        
+
         let with_optionals = matches.is_present("nim-with-optionals");
 
         let target = jtd_codegen_target_nim::Target::new(filename, with_optionals);
@@ -123,6 +123,22 @@ fn main() -> Result<()> {
                 .with_context(|| "Failed to generate Nim code")?;
 
         log.finish("Nim", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("proto-out") {
+        log.start("Proto", out_dir);
+
+        let filename = matches.value_of("proto-filename").unwrap().to_owned();
+
+        let package = matches.value_of("proto-package").unwrap_or(&filename).to_owned();
+
+        let target = jtd_codegen_target_proto::Target::new(filename, package);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate proto file")?;
+
+        log.finish("Proto", &codegen_info);
     }
 
     if let Some(out_dir) = matches.value_of("python-out") {

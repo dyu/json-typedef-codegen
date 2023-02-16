@@ -88,6 +88,25 @@ args:
       long: nim-with-optionals
       takes_value: false
 
+  # Proto
+  - proto-out:
+      help: Output directory for proto code generation
+      long: proto-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - proto-filename
+  - proto-filename:
+      help: File name for proto
+      long: proto-filename
+      takes_value: true
+      value_name: package
+  - proto-package:
+      help: Package name for proto
+      long: proto-package
+      takes_value: true
+      value_name: package
+
   # Python
   - python-out:
       help: Output directory for Python code generation
