@@ -106,6 +106,10 @@ args:
       long: proto-package
       takes_value: true
       value_name: package
+  - proto-emit-required-fields:
+      help: Whether to use emid required fields or not
+      long: proto-emit-required-fields
+      takes_value: false
 
   # Python
   - python-out:

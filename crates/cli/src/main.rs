@@ -127,12 +127,14 @@ fn main() -> Result<()> {
 
     if let Some(out_dir) = matches.value_of("proto-out") {
         log.start("Proto", out_dir);
+        
+        let emit_required_fields = matches.is_present("proto-emit-required-fields");
 
         let filename = matches.value_of("proto-filename").unwrap().to_owned();
 
         let package = matches.value_of("proto-package").unwrap_or(&filename).to_owned();
 
-        let target = jtd_codegen_target_proto::Target::new(filename, package);
+        let target = jtd_codegen_target_proto::Target::new(filename, package, emit_required_fields);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))

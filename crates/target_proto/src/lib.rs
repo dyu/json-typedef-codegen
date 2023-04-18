@@ -1,4 +1,4 @@
-use jtd_codegen::target::{self, inflect, metadata};
+use jtd_codegen::target::{self, inflect, metadata, Field};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
 //use serde_json::Value;
@@ -59,11 +59,12 @@ impl<I: inflect::Inflector> inflect::Inflector for KeywordAvoidingInflector<I> {
 pub struct Target {
     filename: String,
     package: String,
+    emit_required_fields: bool,
 }
 
 impl Target {
-    pub fn new(filename: String, package: String) -> Self {
-        Self { filename, package }
+    pub fn new(filename: String, package: String, emit_required_fields: bool) -> Self {
+        Self { filename, package, emit_required_fields }
     }
 }
 
@@ -189,19 +190,19 @@ impl jtd_codegen::target::Target for Target {
             } => {
                 _ = metadata;
                 writeln!(out, "enum {} {{", name)?;
-                let mut count = 0;
                 let mut numeric = false;
-                for member in &members {
-                    if count == 0 {
+                
+                //for member in &members {
+                for (index, member) in members.into_iter().enumerate() {
+                    if index == 0 {
                         // only test the first member
                         numeric = member.json_value.chars().all(char::is_numeric);
                     }
-                    count += 1;
                     write!(out, "  {} = ", member.name)?;
                     if numeric {
                         writeln!(out, "{};", member.json_value)?;
                     } else {
-                        writeln!(out, "{}; // {:?}", count, member.json_value)?;
+                        writeln!(out, "{}; // {:?}", index + 1, member.json_value)?;
                     }
                 }
                 writeln!(out, "}}\n")?;
@@ -218,18 +219,38 @@ impl jtd_codegen::target::Target for Target {
                 _ = metadata;
                 writeln!(out, "message {} {{", name)?;
                 //write!(out, "{}", description(&metadata, 1))?;
-                let mut count = 0;
+                
+                let mut required_fields: Vec<&Field> = Vec::new();
+                let mut optional_fields: Vec<&Field> = Vec::new();
                 for field in &fields {
-                    count += 1;
-                    if !field.type_.starts_with("repeated ") {
-                        write!(out, "  optional ")?;
+                    if self.emit_required_fields && !field.optional && !field.type_.starts_with("repeated ") {
+                        required_fields.push(field);
                     } else {
+                        optional_fields.push(field);
+                    }
+                }
+                let mut count: usize = 0;
+                if self.emit_required_fields {
+                    for (_, field) in required_fields.into_iter().enumerate() {
+                        count += 1;
+                        writeln!(out, "  required {} {} = {};", field.type_, field.name, count)?;
+                    }
+                }
+                
+                optional_fields.sort_by(|a, b| a.name.partial_cmp(&b.name).unwrap());
+                
+                for (_, field) in optional_fields.into_iter().enumerate() {
+                    count += 1;
+                    if field.type_.starts_with("repeated ") {
                         write!(out, "  ")?;
+                    } else {
+                        write!(out, "  optional ")?;
                     }
                     writeln!(out, "{} {} = {};", field.type_, field.name, count)?;
                 }
+                
                 writeln!(out, "}}\n")?;
-
+                
                 None
             }
 
@@ -313,17 +334,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into(), false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into()),
+            &crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into(), false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into()),
+            &crate::Target::new("jtd_codegen_e2e".into(), "jtd_codegen_e2e".into(), false),
             empty_and_nonascii_enum_values
         );
     }
