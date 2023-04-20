@@ -19,7 +19,7 @@ lazy_static! {
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(KeywordAvoidingInflector::new(
             //KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::camel_case())
+            inflect::TailInflector::new(inflect::Case::snake_case())
         ));
     static ref ENUM_MEMBER_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(KeywordAvoidingInflector::new(
@@ -233,7 +233,14 @@ impl jtd_codegen::target::Target for Target {
                 if self.emit_required_fields {
                     for (_, field) in required_fields.into_iter().enumerate() {
                         count += 1;
-                        writeln!(out, "  required {} {} = {};", field.type_, field.name, count)?;
+                        if field.name != field.json_name || field.json_name.contains('_') {
+                            writeln!(out, "  required {} {} = {} [ alias = \"{}\" ];",
+                                    field.type_, field.name, count, field.json_name)?;
+                        } else {
+                            writeln!(out, "  required {} {} = {};",
+                                    field.type_, field.name, count)?;
+                        }
+
                     }
                 }
                 
@@ -246,7 +253,13 @@ impl jtd_codegen::target::Target for Target {
                     } else {
                         write!(out, "  optional ")?;
                     }
-                    writeln!(out, "{} {} = {};", field.type_, field.name, count)?;
+                    if field.name != field.json_name || field.json_name.contains('_') {
+                        writeln!(out, "{} {} = {} [ alias = \"{}\" ];",
+                                field.type_, field.name, count, field.json_name)?;
+                    } else {
+                        writeln!(out, "{} {} = {};",
+                                field.type_, field.name, count)?;
+                    }
                 }
                 
                 writeln!(out, "}}\n")?;
