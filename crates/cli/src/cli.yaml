@@ -107,7 +107,7 @@ args:
       takes_value: true
       value_name: package
   - proto-emit-required-fields:
-      help: Whether to use emid required fields or not
+      help: Whether to emit required fields or not
       long: proto-emit-required-fields
       takes_value: false
 
