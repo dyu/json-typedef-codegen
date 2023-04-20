@@ -27,13 +27,17 @@ lazy_static! {
         ));
 }
 
+const FIELD_ATTR_SUFFIX_DEFAULT: &str = ", default";
+const FIELD_ATTR_SUFFIX_OPTION: &str = ", skip_serializing_if = \"Option::is_none\"";
+
 pub struct Target {
     numeric_field_names: bool,
+    with_defaults: bool,
 }
 
 impl Target {
-    pub fn new(numeric_field_names: bool) -> Self {
-        Self { numeric_field_names }
+    pub fn new(numeric_field_names: bool, with_defaults: bool) -> Self {
+        Self { numeric_field_names, with_defaults }
     }
 }
 
@@ -244,7 +248,11 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                if self.with_defaults {
+                    writeln!(out, "#[derive(Serialize, Deserialize, Default)]")?;
+                } else {
+                    writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                }
 
                 if fields.is_empty() {
                     writeln!(out, "pub struct {} {{}}", name)?;
@@ -256,16 +264,18 @@ impl jtd_codegen::target::Target for Target {
                         }
 
                         write!(out, "{}", description(&field.metadata, 1))?;
-                        if self.numeric_field_names {
-                            writeln!(out, "    #[serde(rename = \"{}\")]", index + 1)?;
+                        
+                        let attr = if field.optional {
+                            FIELD_ATTR_SUFFIX_OPTION
+                        } else if self.with_defaults {
+                            FIELD_ATTR_SUFFIX_DEFAULT
                         } else {
-                            writeln!(out, "    #[serde(rename = {:?})]", field.json_name)?;    
-                        }
-                        if field.optional {
-                            writeln!(
-                                out,
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]"
-                            )?;
+                            "" 
+                        };
+                        if self.numeric_field_names {
+                            writeln!(out, "    #[serde(rename = \"{}\"{})]", index + 1, attr)?;
+                        } else {
+                            writeln!(out, "    #[serde(rename = {:?}{})]", field.json_name, attr)?;    
                         }
                         writeln!(out, "    pub {}: {},", field.name, field.type_)?;
                     }
@@ -395,17 +405,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new(false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new(false, false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(false),
+            &crate::Target::new(false, false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(false),
+            &crate::Target::new(false, false),
             empty_and_nonascii_enum_values
         );
     }

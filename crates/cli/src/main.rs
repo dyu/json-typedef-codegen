@@ -185,8 +185,10 @@ fn main() -> Result<()> {
 
     if let Some(out_dir) = matches.value_of("rust-out") {
         log.start("Rust", out_dir);
+        
+        let with_defaults = matches.is_present("rust-with-defaults");
 
-        let target = jtd_codegen_target_rust::Target::new(numeric_field_names);
+        let target = jtd_codegen_target_rust::Target::new(numeric_field_names, with_defaults);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))

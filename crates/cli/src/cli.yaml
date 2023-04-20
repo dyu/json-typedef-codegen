@@ -152,6 +152,10 @@ args:
       long: rust-out
       takes_value: true
       value_name: dir
+  - rust-with-defaults:
+      help: Whether to provide a default value for fields not wrapped with Option
+      long: rust-with-defaults
+      takes_value: false
 
   # TypeScript
   - typescript-out:
