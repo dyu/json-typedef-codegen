@@ -130,7 +130,7 @@ impl jtd_codegen::target::Target for Target {
             target::Expr::Float32 => "float32".into(),
             target::Expr::Float64 => "float64".into(),
             target::Expr::String => "string".into(),
-            target::Expr::Timestamp => "uint64".into(),
+            target::Expr::Timestamp => "fixed64".into(),
             target::Expr::ArrayOf(sub_expr) => format!("repeated {}", sub_expr),
             target::Expr::DictOf(sub_expr) => format!("map<string, {}>", sub_expr),
             target::Expr::NullableOf(sub_expr) => sub_expr,
