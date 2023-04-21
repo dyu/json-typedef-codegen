@@ -56,6 +56,9 @@ impl<I: inflect::Inflector> inflect::Inflector for KeywordAvoidingInflector<I> {
     }
 }
 
+const FIELD_ATTR_VARINT: &str = " [ varint = true ]";
+const FIELD_ATTR_SUFFIX_VARINT: &str = ", varint = true";
+
 pub struct Target {
     filename: String,
     package: String,
@@ -229,16 +232,21 @@ impl jtd_codegen::target::Target for Target {
                         optional_fields.push(field);
                     }
                 }
+                
+                let mut attr: &str;
                 let mut count: usize = 0;
+                
                 if self.emit_required_fields {
                     for (_, field) in required_fields.into_iter().enumerate() {
                         count += 1;
                         if field.name != field.json_name || field.json_name.contains('_') {
-                            writeln!(out, "  required {} {} = {} [ alias = \"{}\" ];",
-                                    field.type_, field.name, count, field.json_name)?;
+                            attr = if field.type_.contains("int32") { FIELD_ATTR_SUFFIX_VARINT } else { "" };
+                            writeln!(out, "  required {} {} = {} [ alias = \"{}\"{} ];",
+                                    field.type_, field.name, count, field.json_name, attr)?;
                         } else {
-                            writeln!(out, "  required {} {} = {};",
-                                    field.type_, field.name, count)?;
+                            attr = if field.type_.contains("int32") { FIELD_ATTR_VARINT } else { "" };
+                            writeln!(out, "  required {} {} = {}{};",
+                                    field.type_, field.name, count, attr)?;
                         }
 
                     }
@@ -254,11 +262,13 @@ impl jtd_codegen::target::Target for Target {
                         write!(out, "  optional ")?;
                     }
                     if field.name != field.json_name || field.json_name.contains('_') {
-                        writeln!(out, "{} {} = {} [ alias = \"{}\" ];",
-                                field.type_, field.name, count, field.json_name)?;
+                        attr = if field.type_.contains("int32") { FIELD_ATTR_SUFFIX_VARINT } else { "" };
+                        writeln!(out, "{} {} = {} [ alias = \"{}\"{} ];",
+                                field.type_, field.name, count, field.json_name, attr)?;
                     } else {
-                        writeln!(out, "{} {} = {};",
-                                field.type_, field.name, count)?;
+                        attr = if field.type_.contains("int32") { FIELD_ATTR_VARINT } else { "" };
+                        writeln!(out, "{} {} = {}{};",
+                                field.type_, field.name, count, attr)?;
                     }
                 }
                 
