@@ -205,7 +205,7 @@ impl jtd_codegen::target::Target for Target {
                     if numeric {
                         writeln!(out, "{};", member.json_value)?;
                     } else {
-                        writeln!(out, "{}; // {:?}", index + 1, member.json_value)?;
+                        writeln!(out, "{} [ alias = \"{}\" ];", index + 1, member.json_value)?;
                     }
                 }
                 writeln!(out, "}}\n")?;
