@@ -27,3 +27,4 @@ jtd = "0.2.1"
 clap = { version = "2.33.3", features = ["yaml"] }
 colored = "2.0.0"
 anyhow = "1.0"
+mimalloc = { version = "0.1.37", default-features = false }

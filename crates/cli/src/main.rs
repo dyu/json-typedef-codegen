@@ -1,3 +1,7 @@
+use mimalloc::MiMalloc;
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
 mod root_name;
 
 use anyhow::{format_err, Context, Result};
