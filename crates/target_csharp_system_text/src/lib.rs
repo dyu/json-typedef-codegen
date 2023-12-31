@@ -30,11 +30,12 @@ lazy_static! {
 pub struct Target {
     namespace: String,
     numeric_field_names: bool,
+    prefix_on_numeric_field: bool,
 }
 
 impl Target {
-    pub fn new(namespace: String, numeric_field_names: bool) -> Self {
-        Self { namespace, numeric_field_names }
+    pub fn new(namespace: String, numeric_field_names: bool, prefix_on_numeric_field: bool) -> Self {
+        Self { namespace, numeric_field_names, prefix_on_numeric_field }
     }
 }
 
@@ -314,10 +315,12 @@ impl jtd_codegen::target::Target for Target {
                     }
 
                     write!(out, "{}", description(&field.metadata, 2))?;
-                    if self.numeric_field_names {
-                        writeln!(out, "        [JsonPropertyName(\"{}\")]", index + 1)?;
-                    } else {
+                    if !self.numeric_field_names {
                         writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                    } else if self.prefix_on_numeric_field {
+                        writeln!(out, "        [JsonPropertyName(\"_{}\")]", index + 1)?;
+                    } else {
+                        writeln!(out, "        [JsonPropertyName(\"{}\")]", index + 1)?;
                     }
                     if field.optional {
                         writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
@@ -481,17 +484,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("JtdCodegenE2E".into(), false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("JtdCodegenE2E".into(), false, false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JtdCodegenE2E".into(), false),
+            &crate::Target::new("JtdCodegenE2E".into(), false, false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JtdCodegenE2E".into(), false),
+            &crate::Target::new("JtdCodegenE2E".into(), false, false),
             empty_and_nonascii_enum_values
         );
     }

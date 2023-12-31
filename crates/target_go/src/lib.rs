@@ -39,15 +39,16 @@ lazy_static! {
 pub struct Target {
     package: String,
     numeric_field_names: bool,
+    prefix_on_numeric_field: bool,
 }
 
 impl Target {
-    pub fn new(package: String, numeric_field_names: bool) -> Self {
-        Self { package, numeric_field_names }
+    pub fn  new(package: String, numeric_field_names: bool, prefix_on_numeric_field: bool) -> Self {
+        Self { package, numeric_field_names, prefix_on_numeric_field }
     }
 }
 
-impl jtd_codegen::target::Target for Target {
+impl jtd_codegen::target::Target for Target {   
     type FileState = FileState;
 
     fn strategy(&self) -> target::Strategy {
@@ -228,13 +229,25 @@ impl jtd_codegen::target::Target for Target {
                         writeln!(out, "\t{} {} `json:\"{},omitempty\"`",
                             field.name,
                             field.type_,
-                            if self.numeric_field_names { (index + 1).to_string() } else { field.json_name },
+                            if !self.numeric_field_names {
+                                field.json_name
+                            } else if self.prefix_on_numeric_field {
+                                format!("_{}", index + 1)
+                            } else {
+                                (index + 1).to_string()
+                            },
                         )?;
                     } else {
                         writeln!(out, "\t{} {} `json:\"{}\"`",
                             field.name,
                             field.type_,
-                            if self.numeric_field_names { (index + 1).to_string() } else { field.json_name },
+                            if !self.numeric_field_names {
+                                field.json_name
+                            } else if self.prefix_on_numeric_field {
+                                format!("_{}", index + 1)
+                            } else {
+                                (index + 1).to_string()
+                            },
                         )?;
                     }
                 }
@@ -393,12 +406,12 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into(), false, false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("jtd_codegen_e2e".into(), false),
+            &crate::Target::new("jtd_codegen_e2e".into(), false, false),
             empty_and_nonascii_enum_values
         );
     }

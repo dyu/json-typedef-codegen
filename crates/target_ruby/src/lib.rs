@@ -41,11 +41,12 @@ lazy_static! {
 pub struct Target {
     module: String,
     numeric_field_names: bool,
+    prefix_on_numeric_field: bool,
 }
 
 impl Target {
-    pub fn new(module: String, numeric_field_names: bool) -> Self {
-        Self { module, numeric_field_names }
+    pub fn new(module: String, numeric_field_names: bool, prefix_on_numeric_field: bool) -> Self {
+        Self { module, numeric_field_names, prefix_on_numeric_field }
     }
 }
 
@@ -302,10 +303,12 @@ impl jtd_codegen::target::Target for Target {
                         "      out.{} = {}::from_json_data({}, ",
                         field.name, self.module, field.type_,
                     )?;
-                    if self.numeric_field_names {
-                        writeln!(out, "data[\"{}\"])", count)?;
-                    } else {
+                    if !self.numeric_field_names {
                         writeln!(out, "data[{:?}])", field.json_name)?;
+                    } else if self.prefix_on_numeric_field {
+                        writeln!(out, "data[\"_{}\"])", count)?;
+                    } else {
+                        writeln!(out, "data[\"{}\"])", count)?;
                     }
                 }
                 writeln!(out, "      out")?;
@@ -316,10 +319,12 @@ impl jtd_codegen::target::Target for Target {
                 count = 0;
                 for field in &fields {
                     count += 1;
-                    if self.numeric_field_names {
-                        write!(out, "      data[\"{}\"] = ", count)?;
-                    } else {
+                    if !self.numeric_field_names {
                         write!(out, "      data[{:?}] = ", field.json_name)?;
+                    } else if self.prefix_on_numeric_field {
+                        write!(out, "      data[\"_{}\"] = ", count)?;
+                    } else {
+                        write!(out, "      data[\"{}\"] = ", count)?;
                     }
                     
                     if field.optional {
@@ -470,17 +475,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("JTDCodegenE2E".into(), false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("JTDCodegenE2E".into(), false, false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JTDCodegenE2E".into(), false),
+            &crate::Target::new("JTDCodegenE2E".into(), false, false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new("JTDCodegenE2E".into(), false),
+            &crate::Target::new("JTDCodegenE2E".into(), false, false),
             empty_and_nonascii_enum_values
         );
     }

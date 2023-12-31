@@ -27,6 +27,13 @@ args:
         {"1": "hello"} instead of {"msg": "hello"}
       long: numeric-field-names
       takes_value: false
+  # _ on numeric field names
+  - prefix-on-numeric-field:
+      help: |+
+        Whether to prefix '_' on the numeric field
+        {"_1": "hello"} instead of {"1": "hello"}
+      long: prefix-on-numeric-field
+      takes_value: false
 
   # C# + System.Text.Json
   - csharp-system-text-out:

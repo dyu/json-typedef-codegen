@@ -32,12 +32,13 @@ const FIELD_ATTR_SUFFIX_OPTION: &str = ", skip_serializing_if = \"Option::is_non
 
 pub struct Target {
     numeric_field_names: bool,
+    prefix_on_numeric_field: bool,
     with_defaults: bool,
 }
 
 impl Target {
-    pub fn new(numeric_field_names: bool, with_defaults: bool) -> Self {
-        Self { numeric_field_names, with_defaults }
+    pub fn new(numeric_field_names: bool, prefix_on_numeric_field: bool, with_defaults: bool) -> Self {
+        Self { numeric_field_names, prefix_on_numeric_field, with_defaults }
     }
 }
 
@@ -272,10 +273,12 @@ impl jtd_codegen::target::Target for Target {
                         } else {
                             "" 
                         };
-                        if self.numeric_field_names {
-                            writeln!(out, "    #[serde(rename = \"{}\"{})]", index + 1, attr)?;
-                        } else {
+                        if !self.numeric_field_names {
                             writeln!(out, "    #[serde(rename = {:?}{})]", field.json_name, attr)?;    
+                        } else if self.prefix_on_numeric_field {
+                            writeln!(out, "    #[serde(rename = \"_{}\"{})]", index + 1, attr)?;
+                        } else {
+                            writeln!(out, "    #[serde(rename = \"{}\"{})]", index + 1, attr)?;
                         }
                         writeln!(out, "    pub {}: {},", field.name, field.type_)?;
                     }
@@ -405,17 +408,17 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new(false, false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new(false, false, false));
     }
 
     mod optional_std_tests {
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(false, false),
+            &crate::Target::new(false, false, false),
             empty_and_nonascii_properties
         );
 
         jtd_codegen_test::strict_std_test_case!(
-            &crate::Target::new(false, false),
+            &crate::Target::new(false, false, false),
             empty_and_nonascii_enum_values
         );
     }

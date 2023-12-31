@@ -33,11 +33,12 @@ lazy_static! {
 pub struct Target {
     package: String,
     numeric_field_names: bool,
+    prefix_on_numeric_field: bool,
 }
 
 impl Target {
-    pub fn new(package: String, numeric_field_names: bool) -> Self {
-        Self { package, numeric_field_names }
+    pub fn new(package: String, numeric_field_names: bool, prefix_on_numeric_field: bool) -> Self {
+        Self { package, numeric_field_names, prefix_on_numeric_field }
     }
 }
 
@@ -310,10 +311,12 @@ impl jtd_codegen::target::Target for Target {
                     if field.optional {
                         writeln!(out, "    @JsonInclude(JsonInclude.Include.NON_NULL)")?;
                     }
-                    if self.numeric_field_names {
-                        writeln!(out, "    @JsonProperty(\"{}\")", count)?;
+                    if !self.numeric_field_names {
+                        writeln!(out, "    @JsonProperty({:?})", field.json_name)?;   
+                    } else if self.prefix_on_numeric_field {
+                        writeln!(out, "    @JsonProperty(\"_{}\")", count)?;
                     } else {
-                        writeln!(out, "    @JsonProperty({:?})", field.json_name)?;
+                        writeln!(out, "    @JsonProperty(\"{}\")", count)?;
                     }
                     writeln!(out, "    private {} {};", field.type_, field.name)?;
                     writeln!(out)?;
@@ -576,6 +579,6 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("com.example".into(), false));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("com.example".into(), false, false));
     }
 }

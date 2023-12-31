@@ -64,6 +64,9 @@ fn main() -> Result<()> {
     // {"1": "Hello, world!"} instead of {"msg": "Hello, world!"}
     let numeric_field_names = matches.is_present("numeric-field-names");
     
+    // {"_1": "Hello, world!"} instead of {"1": "Hello, world!"}
+    let prefix_on_numeric_field: bool = matches.is_present("prefix-on-numeric-field");
+    
     // Generate code for all enabled targets.
 
     if let Some(out_dir) = matches.value_of("csharp-system-text-out") {
@@ -75,7 +78,7 @@ fn main() -> Result<()> {
             .to_owned();
 
         let target = jtd_codegen_target_csharp_system_text::Target::new(namespace,
-            numeric_field_names);
+            numeric_field_names, prefix_on_numeric_field);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -89,7 +92,8 @@ fn main() -> Result<()> {
 
         let package = matches.value_of("go-package").unwrap().to_owned();
 
-        let target = jtd_codegen_target_go::Target::new(package, numeric_field_names);
+        let target = jtd_codegen_target_go::Target::new(package,
+            numeric_field_names, prefix_on_numeric_field);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -104,7 +108,7 @@ fn main() -> Result<()> {
         let package = matches.value_of("java-jackson-package").unwrap().to_owned();
 
         let target = jtd_codegen_target_java_jackson::Target::new(package,
-            numeric_field_names);
+            numeric_field_names, prefix_on_numeric_field);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -150,7 +154,8 @@ fn main() -> Result<()> {
     if let Some(out_dir) = matches.value_of("python-out") {
         log.start("Python", out_dir);
 
-        let target = jtd_codegen_target_python::Target::new(numeric_field_names);
+        let target = jtd_codegen_target_python::Target::new(
+            numeric_field_names, prefix_on_numeric_field);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -164,7 +169,8 @@ fn main() -> Result<()> {
 
         let module = matches.value_of("ruby-module").unwrap().to_owned();
 
-        let target = jtd_codegen_target_ruby::Target::new(module, numeric_field_names);
+        let target = jtd_codegen_target_ruby::Target::new(module,
+            numeric_field_names, prefix_on_numeric_field);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -192,7 +198,8 @@ fn main() -> Result<()> {
         
         let with_defaults = matches.is_present("rust-with-defaults");
 
-        let target = jtd_codegen_target_rust::Target::new(numeric_field_names, with_defaults);
+        let target = jtd_codegen_target_rust::Target::new(
+            numeric_field_names, prefix_on_numeric_field, with_defaults);
 
         let codegen_info =
             jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
@@ -309,7 +316,7 @@ impl Log for JsonLog {
     }
 
     fn finish(&mut self, target: &str, info: &jtd_codegen::codegen::CodegenInfo) {
-        let mut entry = self.0.get_mut(target).unwrap();
+        let entry = self.0.get_mut(target).unwrap();
 
         entry.root_name = info.root_name.clone();
         entry.definition_names = info.definition_names.clone();
